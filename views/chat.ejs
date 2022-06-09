@@ -1,0 +1,142 @@
+<html>
+  <head>
+    <style lang="scss">
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      .warp {
+      }
+    </style>
+  </head>
+  <body>
+    <div class="warp">
+      <div id="chatList"></div>
+      <ul id="messages"></ul>
+      <form action="">
+        <input id="m" autocomplete="off" />
+        <button>Send</button>
+      </form>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+      // const name = prompt("What your name");
+      console.log(localStorage);
+      const name = localStorage.getItem("reg_name");
+      const socket = io();
+      const teacherIdx = localStorage.getItem("smt_idx");
+      const studentIdx = localStorage.getItem("sms_idx");
+      const chatMode = localStorage.getItem("mode");
+      var api = "http://localhost:3095/";
+      let room = ["room1", "room2"];
+      let num = 0;
+      $(() => {
+        // chat init
+        if (chatMode === "S") {
+          onClickJoinRoom(teacherIdx, studentIdx);
+        }
+        if (chatMode === "T") {
+          $.ajax({
+            type: "GET", // HTTP method type(GET, POST) 형식이다.
+            url: api + "chat.php?type=chatList&smt_idx=" + teacherIdx, // 컨트롤러에서 대기중인 URL 주소이다.
+            // data: params, // Json 형식의 데이터이다.
+            success: function (res) {
+              console.log(res);
+              if (JSON.parse(res).length !== 0) {
+                resJson = JSON.parse(res);
+                let initList = "";
+                resJson.forEach((v) => {
+                  initList += `<div onclick="onClickJoinRoom(${v.smt_idx},${v.sms_idx})">${v.student_name}</div>`;
+                });
+                $("#chatList").html(initList);
+              }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+              // 비동기 통신이 실패할경우 error 콜백으로 들어옵니다.
+              alert("통신 실패.");
+            },
+          });
+        }
+
+        // socket.emit("joinRoom", num, name);
+        // socket.emit("enterChat", num, name);
+
+        $("select").change(() => {
+          socket.emit("leaveRoom", num, name);
+          num++;
+          num = num % 2;
+          socket.emit("joinRoom", num, name);
+        });
+
+        $("form").submit(() => {
+          const jellyRoom = sessionStorage.getItem("jellyRoom");
+          console.log(jellyRoom);
+          socket.emit(
+            "chat message",
+            jellyRoom,
+            name,
+            $("#m").val(),
+            teacherIdx,
+            studentIdx
+          );
+          $("#m").val("");
+          return false;
+        });
+
+        socket.on("chat message", (name, msg, t_idx) => {
+          if (t_idx == teacherIdx) {
+            $("#messages").append(
+              $("<li>").text(name + "꺼  :  " + teacherIdx + msg)
+            );
+          } else {
+            $("#messages").append($("<li>").text(name + "  :  " + msg));
+          }
+        });
+
+        socket.on("leaveRoom", (num, name) => {
+          $("#messages").append(
+            $("<li>").text(name + "    leaved " + room[num] + " :(")
+          );
+        });
+
+        socket.on("joinRoom", (num, name) => {
+          $("#messages").append(
+            $("<li>").text(name + "    joined " + num + ":)")
+          );
+        });
+      });
+
+      // join room
+      function onClickJoinRoom(smt, sms) {
+        $("#messages").html("");
+        console.log(smt, sms);
+        const roomName = "T" + smt + "S" + sms;
+        sessionStorage.removeItem("jellyRoom");
+        sessionStorage.setItem("jellyRoom", roomName);
+        socket.emit("joinRoom", roomName, name, smt, sms);
+        $.ajax({
+          type: "GET", // HTTP method type(GET, POST) 형식이다.
+          url: api + "chat.php?type=chatInit&room_id=" + roomName, // 컨트롤러에서 대기중인 URL 주소이다.
+          // data: params, // Json 형식의 데이터이다.
+          success: function (res) {
+            console.log(res);
+            if (JSON.parse(res).length !== 0) {
+              resJson = JSON.parse(res);
+              let msgInitData = "";
+              resJson.forEach((v, i) => {
+                msgInitData += `<li>${v.msg}</li>`;
+              });
+              $("#messages").html(msgInitData);
+            }
+          },
+          error: function (XMLHttpRequest, textStatus, errorThrown) {
+            // 비동기 통신이 실패할경우 error 콜백으로 들어옵니다.
+            alert("통신 실패.");
+          },
+        });
+      }
+    </script>
+  </body>
+</html>
