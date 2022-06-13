@@ -1,0 +1,78 @@
+<template>
+  <div class="chatBot">
+    <div class="content">
+      <div class="list" @click="onClickScrollBottom" v-for="item in 50" :key="item">asdasd</div>
+      <div class="list2" @click="onClickScrollBottom" v-for="item in 50" :key="'a'+item">document.body.offsetHeight</div>
+      <div id="newMsg" @click="onClickNewMsg">asdasdasdasdasd</div>
+    </div>
+  </div>
+</template>
+
+<script>
+
+export default {
+  name: 'App',
+  components: {
+  },
+  methods: {
+  onClickScrollBottom() {
+    const windowScroll = window.scrollY;
+    const windowInner = window.innerHeight;
+    const bodyOffset = document.body.offsetHeight
+    console.log('***************',document.body.offsetHeight,bodyOffset-windowInner, windowScroll+windowInner)
+      if(bodyOffset-windowInner < windowScroll+windowInner) {
+        console.log(bodyOffset-windowInner, windowScroll+ windowInner)
+        window.scrollTo({ left: 0, top: document.body.offsetHeight, behavior: "smooth" });
+        if(windowScroll+windowInner+ 100 < bodyOffset) {
+          console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+          document.getElementById('newMsg').style.display = 'none'
+        }
+      } 
+    },
+    onClickNewMsg() {
+      window.scrollTo({ left: 0, top: document.body.offsetHeight, behavior: "smooth" });
+      document.getElementById('newMsg').style.display = 'none'
+    }
+  }
+}
+</script>
+
+<style lang="scss">
+body,html {
+  padding:0;
+  margin:0;
+}
+.chatBot {
+  background:#eee;
+  > .content {
+    min-width:320px;
+    width:100%;
+    max-width:600px;
+    min-height:100vh;
+    margin:0 auto;
+    background:#fff;
+    // overflow-y: auto;
+    display: grid;
+    align-items: end;
+    align-content: end;
+    .list {
+      height:60px;
+      background:red;
+    }
+    .list2 {
+      height:60px;
+      background:blue;
+    }
+    #newMsg {
+      min-width:320px;
+      width:100%;
+      max-width:600px;
+      height:60px;
+      position:fixed;
+      bottom:0;
+      background:#000;
+      color:#fff;
+    }
+  }
+}
+</style>
