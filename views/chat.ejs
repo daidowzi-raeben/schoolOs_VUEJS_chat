@@ -1,27 +1,379 @@
 <html>
   <head>
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <meta charset="utf-8" />
     <style lang="scss">
+      @font-face {
+        font-family: "Noto Sans KR";
+        font-style: normal;
+        font-weight: 100;
+        src: url(//fonts.gstatic.com/ea/notosanskr/v2/NotoSansKR-Thin.woff2)
+            format("woff2"),
+          url(//fonts.gstatic.com/ea/notosanskr/v2/NotoSansKR-Thin.woff)
+            format("woff"),
+          url(//fonts.gstatic.com/ea/notosanskr/v2/NotoSansKR-Thin.otf)
+            format("opentype");
+      }
+
+      @font-face {
+        font-family: "Noto Sans KR";
+        font-style: normal;
+        font-weight: 300;
+        src: url(//fonts.gstatic.com/ea/notosanskr/v2/NotoSansKR-Light.woff2)
+            format("woff2"),
+          url(//fonts.gstatic.com/ea/notosanskr/v2/NotoSansKR-Light.woff)
+            format("woff"),
+          url(//fonts.gstatic.com/ea/notosanskr/v2/NotoSansKR-Light.otf)
+            format("opentype");
+      }
+
+      @font-face {
+        font-family: "Noto Sans KR";
+        font-style: normal;
+        font-weight: 400;
+        src: url(//fonts.gstatic.com/ea/notosanskr/v2/NotoSansKR-Regular.woff2)
+            format("woff2"),
+          url(//fonts.gstatic.com/ea/notosanskr/v2/NotoSansKR-Regular.woff)
+            format("woff"),
+          url(//fonts.gstatic.com/ea/notosanskr/v2/NotoSansKR-Regular.otf)
+            format("opentype");
+      }
+
+      @font-face {
+        font-family: "Noto Sans KR";
+        font-style: normal;
+        font-weight: 500;
+        src: url(//fonts.gstatic.com/ea/notosanskr/v2/NotoSansKR-Medium.woff2)
+            format("woff2"),
+          url(//fonts.gstatic.com/ea/notosanskr/v2/NotoSansKR-Medium.woff)
+            format("woff"),
+          url(//fonts.gstatic.com/ea/notosanskr/v2/NotoSansKR-Medium.otf)
+            format("opentype");
+      }
+
+      @font-face {
+        font-family: "Noto Sans KR";
+        font-style: normal;
+        font-weight: 700;
+        src: url(//fonts.gstatic.com/ea/notosanskr/v2/NotoSansKR-Bold.woff2)
+            format("woff2"),
+          url(//fonts.gstatic.com/ea/notosanskr/v2/NotoSansKR-Bold.woff)
+            format("woff"),
+          url(//fonts.gstatic.com/ea/notosanskr/v2/NotoSansKR-Bold.otf)
+            format("opentype");
+      }
+
+      @font-face {
+        font-family: "Noto Sans KR";
+        font-style: normal;
+        font-weight: 900;
+        src: url(//fonts.gstatic.com/ea/notosanskr/v2/NotoSansKR-Black.woff2)
+            format("woff2"),
+          url(//fonts.gstatic.com/ea/notosanskr/v2/NotoSansKR-Black.woff)
+            format("woff"),
+          url(//fonts.gstatic.com/ea/notosanskr/v2/NotoSansKR-Black.otf)
+            format("opentype");
+      }
+      html,
+      body,
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      input,
+      textarea,
+      select {
+        font-family: "Noto Sans KR", sans-serif;
+        color: #111;
+      }
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
       }
+      body {
+        background-color: rgb(245, 245, 245);
+        font-size: 14px;
+      }
       .warp {
+        width: 100%;
+        max-width: 600px;
+        min-width: 320px;
+        background-color: #fff;
+        overflow: hidden;
+        position: relative;
+        margin: 0 auto;
+        min-height: 100vh;
+      }
+      .chatList {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 100%;
+        background-color: #fff;
+        z-index: 9;
+      }
+      .slideAnimation {
+        height: 0;
+        transition: height 0.15s ease-out;
+        overflow: hidden;
+      }
+      .slideAnimationON {
+        height: 100vh;
+        transition: height 0.15s ease-out;
+        overflow: hidden;
+      }
+      #chatList {
+        overflow-y: auto;
+      }
+      #chatList > .flex {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+      }
+      .flex {
+        display: flex;
+      }
+      .flex-right {
+        margin-left: auto;
+      }
+      .avatar > .photo {
+        width: 42px;
+        height: 42px;
+        position: relative;
+        background: #000;
+        border-radius: 15px;
+        overflow: hidden;
+      }
+      .avatar > .photo > img {
+        object-fit: cover;
+        width: 150%;
+        position: absolute;
+        transform: translate(-50%, -50%);
+        left: 50%;
+        top: 50%;
+      }
+      .chatListMsg {
+        margin-left: 15px;
+      }
+      .chatListMsg span {
+        color: #acb5be;
+      }
+      .chatListMsg p {
+        font-size: 12px;
+      }
+      .chatListDate {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+      }
+      .sendMsg {
+        position: fixed;
+        max-width: 600px;
+        width: 100%;
+        min-width: 320px;
+        background: #fff;
+        bottom: 0;
+        left: 50%;
+        transform: translate(-50%, 0);
+        padding: 10px;
+        border-top: 2px dotted #ddd;
+      }
+      #m {
+        border: none;
+        width: calc(100% - 50px);
+        padding: 10px;
+        border-radius: 0px;
+        box-sizing: border-box;
+        border-bottom: 1px dotted #ddd;
+      }
+      input:focus-visible {
+        outline: none;
+      }
+      #m:focus {
+        border-bottom: 1px dotted #4f6ebd;
+        outline: none;
+
+        padding: 10px 10px;
+      }
+      #m + button {
+        border: none;
+        background: #4f6ebd;
+        width: 40px;
+        height: 40px;
+        border-radius: 100%;
+      }
+      #m + button > svg {
+        fill: #fff;
+      }
+      .msgList {
+        display: grid;
+        align-items: end;
+        /* height: calc(100% - 100px); */
+        /* overflow-y: auto; */
+      }
+      :root {
+        --body-bg: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        --msger-bg: #fff;
+        --border: 2px solid #ddd;
+        --left-msg-bg: #ececec;
+        --right-msg-bg: #579ffb;
+      }
+      #messages {
+        padding: 60px 10px;
+      }
+      #messages li {
+        display: flex;
+        align-items: flex-end;
+        margin-bottom: 10px;
+        margin-bottom: 10px;
+        max-width: calc(100% / 1.55);
+      }
+      #messages li > .photo {
+        width: 42px;
+        height: 42px;
+        position: relative;
+        background: #000;
+        border-radius: 15px;
+        overflow: hidden;
+      }
+      #messages li > .photo > img {
+        object-fit: cover;
+        width: 150%;
+        position: absolute;
+        transform: translate(-50%, -50%);
+        left: 50%;
+        top: 50%;
+      }
+      #messages li > .msg {
+        border-bottom-left-radius: 0;
+        max-width: 450px;
+        padding: 10px 15px;
+        border-radius: 15px;
+        background: var(--left-msg-bg);
+      }
+      #chatRegName {
+        margin: 17px;
+      }
+      /* #messages li:after {
+        content: "";
+        display: block;
+        height: 1em;
+        width: 1em;
+        position: absolute;
+        bottom: 0.75em;
+        right: -1em;
+        -webkit-clip-path: polygon(0 0, 0% 100%, 75% 100%);
+        clip-path: polygon(0 0, 0% 100%, 75% 100%);
+        background: #0072ff;
+        transform: skewY(15deg);
+      } */
+      li.flex-right > .msg {
+        background: var(--right-msg-bg) !important;
+        color: #fff;
+        border-bottom-right-radius: 0;
+      }
+      .flex-right {
+        margin-left: auto;
+      }
+      .flex-row {
+        display: flex;
+        flex-direction: column;
+      }
+      .teacher {
+        display: none;
+      }
+      .chatHeader {
+        width: 100%;
+        height: 60px;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        max-width: 600px;
+        background: linear-gradient(to right, #00c6ff, #0072ff);
+        color: white;
+      }
+      .backGroup {
+        background: none;
+        border: none;
+        background: url("");
+        margin-top: 8px;
+      }
+      .backGroup > svg {
+        fill: #fff;
       }
     </style>
   </head>
   <body>
     <div class="warp">
-      <div id="chatList"></div>
-      <ul id="messages"></ul>
+      <div class="chatList">
+        <div id="chatList"></div>
+      </div>
+      <div class="msgList">
+        <div class="teacher">
+          <div class="chatHeader">
+            <div class="flex">
+              <div class="">
+                <button onclick="initChatRoom('back')" class="backGroup">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="40"
+                    height="40"
+                    fill="currentColor"
+                    class="bi bi-arrow-left-short"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5z"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <div id="chatRegName"></div>
+              <!-- <div class="flex-right">123123</div> -->
+            </div>
+          </div>
+        </div>
+        <ul id="messages" class="flex-row"></ul>
+        <span id="scrollBottom"></span>
+        <span id="newMsg"></span>
+      </div>
       <form action="">
-        <input id="m" autocomplete="off" />
-        <button>Send</button>
+        <div class="flex sendMsg">
+          <input
+            type="text"
+            id="m"
+            autocomplete="off"
+            placeholder="메세지를 입력하세요"
+          />
+          <button class="flex-right">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              class="bi bi-send"
+              viewBox="0 0 16 16"
+            >
+              <path
+                d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576 6.636 10.07Zm6.787-8.201L1.591 6.602l4.339 2.76 7.494-7.493Z"
+              />
+            </svg>
+          </button>
+        </div>
       </form>
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
+      getParam();
       // const name = prompt("What your name");
       console.log(localStorage);
       const name = localStorage.getItem("reg_name");
@@ -30,34 +382,23 @@
       const studentIdx = localStorage.getItem("sms_idx");
       const chatMode = localStorage.getItem("mode");
       var api = "http://localhost:3095/";
-      let room = ["room1", "room2"];
-      let num = 0;
+      // var api = "http://school-os.net:3095/";
       $(() => {
+        $("body")
+          .mouseenter(function () {
+            console.log("[IN]");
+          })
+          .mouseleave(function () {
+            console.log("[OUT]");
+          });
+        //findfun.tistory.com/291?category=383258 [즐거움을 찾자 Find Fun!!:티스토리]
         // chat init
         if (chatMode === "S") {
           onClickJoinRoom(teacherIdx, studentIdx);
         }
         if (chatMode === "T") {
-          $.ajax({
-            type: "GET", // HTTP method type(GET, POST) 형식이다.
-            url: api + "chat.php?type=chatList&smt_idx=" + teacherIdx, // 컨트롤러에서 대기중인 URL 주소이다.
-            // data: params, // Json 형식의 데이터이다.
-            success: function (res) {
-              console.log(res);
-              if (JSON.parse(res).length !== 0) {
-                resJson = JSON.parse(res);
-                let initList = "";
-                resJson.forEach((v) => {
-                  initList += `<div onclick="onClickJoinRoom(${v.smt_idx},${v.sms_idx})">${v.student_name}</div>`;
-                });
-                $("#chatList").html(initList);
-              }
-            },
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
-              // 비동기 통신이 실패할경우 error 콜백으로 들어옵니다.
-              alert("통신 실패.");
-            },
-          });
+          $(".teacher").show();
+          initChatRoom();
         }
 
         // socket.emit("joinRoom", num, name);
@@ -73,27 +414,117 @@
         $("form").submit(() => {
           const jellyRoom = sessionStorage.getItem("jellyRoom");
           console.log(jellyRoom);
-          socket.emit(
-            "chat message",
-            jellyRoom,
-            name,
-            $("#m").val(),
-            teacherIdx,
-            studentIdx
-          );
+          const test = 1;
+          if (test === 1) {
+            socket.emit(
+              "chat message",
+              jellyRoom,
+              name,
+              $("#m").val(),
+              teacherIdx,
+              studentIdx,
+              chatMode
+            );
+          } else {
+            console.log("전체메세지");
+            socket.emit(
+              "all chat message",
+              jellyRoom,
+              name,
+              $("#m").val(),
+              teacherIdx,
+              studentIdx,
+              chatMode
+            );
+          }
           $("#m").val("");
           return false;
         });
-
-        socket.on("chat message", (name, msg, t_idx) => {
-          if (t_idx == teacherIdx) {
-            $("#messages").append(
-              $("<li>").text(name + "꺼  :  " + teacherIdx + msg)
-            );
-          } else {
-            $("#messages").append($("<li>").text(name + "  :  " + msg));
-          }
+        socket.on("log", (log) => {
+          console.log(log);
         });
+
+        socket.on(
+          "chat message",
+          (
+            name,
+            msg,
+            t_idx,
+            mode,
+            q_insert,
+            student_name,
+            reg_photo,
+            teacher_name,
+            teacher_photo
+          ) => {
+            console.log(q_insert);
+            const windowScroll = window.scrollY;
+            const windowInner = window.innerHeight;
+            const bodyOffset = document.body.offsetHeight;
+            let msgInitData;
+            let photo_left;
+            let photo_right;
+            let myClass = "";
+
+            if (mode === chatMode) {
+              myClassData = "flex-right";
+            }
+            chatMode === "T"
+              ? (chatName = student_name)
+              : (chatName = teacher_name);
+            chatMode === mode ? (myClass = "flex-right") : (myClass = "");
+            // 챗 모드에 따라 사진 변경
+            if (chatMode === "S") {
+              photo_img = api + "/data/teacher/profile/" + teacher_photo;
+            } else {
+              photo_img = api + "/data/student/profile/" + reg_photo;
+            }
+            if (myClass === "") {
+              photo_left = `<div class="photo" style="margin-right:8px;">
+              <img src="${photo_img}">
+              </div>`;
+              photo_right = "";
+            } else {
+              photo_right = "";
+              // photo_right = `<div class="photo" style="margin-left:8px;">
+              // <img src="${photo_img}">
+              // </div>`;
+              photo_left = "";
+            }
+            const tagHtml = `<li class='${myClass}'>
+            ${photo_left}
+            <div class='msg'>${msg}</div>
+            ${photo_right}
+            </li>`;
+
+            $("#messages").append(tagHtml);
+            if (
+              $("#scrollBottom").offset().top -
+                $(".msgList li:last-child").offset().top <
+              200
+            ) {
+              setTimeout(() => {
+                console.log(
+                  "***************",
+                  document.body.offsetHeight,
+                  bodyOffset - windowInner,
+                  windowScroll + windowInner
+                );
+                if (bodyOffset - windowInner <= windowScroll + windowInner) {
+                  window.scrollTo({
+                    left: 0,
+                    top: document.body.offsetHeight,
+                    behavior: "smooth",
+                  });
+                  if (windowScroll + windowInner + 100 < bodyOffset) {
+                    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+                    document.getElementById("newMsg").style.display = "none";
+                  }
+                }
+              }, 500);
+            }
+          }
+        );
 
         socket.on("leaveRoom", (num, name) => {
           $("#messages").append(
@@ -108,11 +539,62 @@
         });
       });
 
+      // chat init teacher
+      function initChatRoom(e) {
+        $.ajax({
+          type: "GET", // HTTP method type(GET, POST) 형식이다.
+          url: api + "chat.php?type=chatList&smt_idx=" + teacherIdx, // 컨트롤러에서 대기중인 URL 주소이다.
+          // data: params, // Json 형식의 데이터이다.
+          success: function (res) {
+            if (JSON.parse(res).length !== 0) {
+              resJson = JSON.parse(res);
+              console.log(resJson);
+              let initList = "";
+              resJson.forEach((v) => {
+                initList += `
+                  <div class="flex" onclick="onClickJoinRoom(${v.smt_idx},${
+                  v.sms_idx
+                })">
+                    <div class="avatar">
+                      <div class="photo">
+                        <img src='http://localhost:3095/data/student/profile/${
+                          v.reg_photo
+                        }'>
+                        </div>
+                    </div>
+                    <div class="chatListMsg">
+                      <span>${v.student_name}</span>
+                      <p>${
+                        v.msg !== null ? v.msg : "첫 메세지를 보내보세요"
+                      }</p>
+                    </div>
+                    <div class="chatListDate flex-right">${
+                      v.msg_datetime ? timeForToday(v.msg_datetime) : ""
+                    }</div>
+                  </div>
+                  `;
+              });
+              $("#chatList").html(initList);
+            }
+          },
+          error: function (XMLHttpRequest, textStatus, errorThrown) {
+            // 비동기 통신이 실패할경우 error 콜백으로 들어옵니다.
+            alert("통신 실패.");
+          },
+        });
+        if (e === "back") {
+          $(".chatList").removeClass("slideAnimation");
+        }
+      }
+      console.log("chatTimes", chatTimes());
       // join room
       function onClickJoinRoom(smt, sms) {
         $("#messages").html("");
+        $("#chatRegName").text("");
         console.log(smt, sms);
         const roomName = "T" + smt + "S" + sms;
+        let chatName;
+
         sessionStorage.removeItem("jellyRoom");
         sessionStorage.setItem("jellyRoom", roomName);
         socket.emit("joinRoom", roomName, name, smt, sms);
@@ -122,15 +604,117 @@
           // data: params, // Json 형식의 데이터이다.
           success: function (res) {
             console.log(res);
-            if (JSON.parse(res).length !== 0) {
+            if (res) {
               resJson = JSON.parse(res);
               let msgInitData = "";
+              let myClass = "";
+              let photo_left;
+              let photo_right;
               resJson.forEach((v, i) => {
-                msgInitData += `<li>${v.msg}</li>`;
+                chatMode === "T"
+                  ? (chatName = v.student_name)
+                  : (chatName = v.teacher_name);
+                chatMode === v.msg_mode
+                  ? (myClass = "flex-right")
+                  : (myClass = "");
+                // 챗 모드에 따라 사진 변경
+                if (chatMode === "S") {
+                  photo_img = api + "/data/teacher/profile/" + v.teacher_photo;
+                } else {
+                  photo_img = api + "/data/student/profile/" + v.reg_photo;
+                }
+                if (myClass === "") {
+                  photo_left = `<div class="photo" style="margin-right:8px;">
+              <img src="${photo_img}">
+              </div>`;
+                  photo_right = "";
+                } else {
+                  //     photo_right = `<div class="photo" style="margin-left:8px;">
+                  // <img src="${photo_img}">
+                  // </div>`;
+                  photo_right = "";
+                  photo_left = "";
+                }
+                const tagHtml = `<li class='${myClass}'>
+            ${photo_left}
+            <div class='msg'>${v.msg}</div>
+            ${photo_right}
+            </li>`;
+                msgInitData += tagHtml;
               });
               $("#messages").html(msgInitData);
             }
+            $("#chatRegName").text(chatName);
+
+            $(".chatList").addClass("slideAnimation");
+            window.scrollTo({
+              left: 0,
+              top: document.body.offsetHeight,
+              behavior: "smooth",
+            });
           },
+          error: function (XMLHttpRequest, textStatus, errorThrown) {
+            // 비동기 통신이 실패할경우 error 콜백으로 들어옵니다.
+            alert("통신 실패.");
+          },
+        });
+      }
+
+      // 시간계산
+      function timeForToday(value) {
+        const today = new Date();
+        const timeValue = new Date(value);
+
+        const betweenTime = Math.floor(
+          (today.getTime() - timeValue.getTime()) / 1000 / 60
+        );
+        if (betweenTime < 1) return "방금전";
+        if (betweenTime < 60) {
+          return `${betweenTime}분전`;
+        }
+
+        const betweenTimeHour = Math.floor(betweenTime / 60);
+        if (betweenTimeHour < 24) {
+          return `${betweenTimeHour}시간전`;
+        }
+
+        const betweenTimeDay = Math.floor(betweenTime / 60 / 24);
+        if (betweenTimeDay < 365) {
+          return `${betweenTimeDay}일전`;
+        }
+
+        return `${Math.floor(betweenTimeDay / 365)}년전`;
+      }
+
+      function getParam(sname) {
+        var params = decodeURI(location.search).substr(
+          location.search.indexOf("?") + 1
+        );
+        console.log(params);
+        if (params.length !== 0) {
+          localStorage.clear();
+          var sval = "";
+          params = params.split("&");
+          for (var i = 0; i < params.length; i++) {
+            temp = params[i].split("=");
+            if (temp[1]) {
+              localStorage.setItem(temp[0], temp[1]);
+            }
+          }
+          // if ([temp[0]] == sname) {
+          //   sval = temp[1];
+          // }
+          return (location.href = "/");
+        }
+      }
+
+      function chatTimes() {
+        let a = "";
+        $.ajax({
+          type: "GET", // HTTP method type(GET, POST) 형식이다.
+          url: api + "times.php", // 컨트롤러에서 대기중인 URL 주소이다.
+          // data: params, // Json 형식의 데이터이다.
+          success: function (res) {},
           error: function (XMLHttpRequest, textStatus, errorThrown) {
             // 비동기 통신이 실패할경우 error 콜백으로 들어옵니다.
             alert("통신 실패.");
