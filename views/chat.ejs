@@ -308,6 +308,23 @@
       .backGroup > svg {
         fill: #fff;
       }
+      .allMsg {
+        position: absolute;
+        width: 64px;
+        margin-top: 11px;
+      }
+      #allMsg {
+        width: 64px;
+        height: 50px;
+        position: absolute;
+        opacity: 0;
+      }
+      #allMsg + label {
+        font-size: 12px;
+      }
+      #allMsg:checked + label {
+        color: #0072ff;
+      }
     </style>
   </head>
   <body>
@@ -347,13 +364,18 @@
       </div>
       <form action="">
         <div class="flex sendMsg">
+          <div class="allMsg teacher">
+            <input type="checkbox" id="allMsg" /><label for="allMsg"
+              >전체메세지</label
+            >
+          </div>
           <input
             type="text"
             id="m"
             autocomplete="off"
             placeholder="메세지를 입력하세요"
           />
-          <button class="flex-right">
+          <button class="flex-right" style="flex-shrink: 1">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -397,6 +419,7 @@
           onClickJoinRoom(teacherIdx, studentIdx);
         }
         if (chatMode === "T") {
+          $("#m").css({ marginLeft: "54px", width: "calc(100% - 90px)" });
           $(".teacher").show();
           initChatRoom();
         }
@@ -414,8 +437,8 @@
         $("form").submit(() => {
           const jellyRoom = sessionStorage.getItem("jellyRoom");
           console.log(jellyRoom);
-          const test = 1;
-          if (test === 1) {
+
+          if ($("#allMsg").prop("checked") === false) {
             socket.emit(
               "chat message",
               jellyRoom,
