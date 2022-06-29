@@ -710,16 +710,16 @@
 
       function chatTimes() {
         let a = "";
-        $.ajax({
-          type: "GET", // HTTP method type(GET, POST) 형식이다.
-          url: api + "times.php", // 컨트롤러에서 대기중인 URL 주소이다.
-          // data: params, // Json 형식의 데이터이다.
-          success: function (res) {},
-          error: function (XMLHttpRequest, textStatus, errorThrown) {
-            // 비동기 통신이 실패할경우 error 콜백으로 들어옵니다.
-            alert("통신 실패.");
-          },
-        });
+        // $.ajax({
+        //   type: "GET", // HTTP method type(GET, POST) 형식이다.
+        //   url: api + "times.php", // 컨트롤러에서 대기중인 URL 주소이다.
+        //   // data: params, // Json 형식의 데이터이다.
+        //   success: function (res) {},
+        //   error: function (XMLHttpRequest, textStatus, errorThrown) {
+        //     // 비동기 통신이 실패할경우 error 콜백으로 들어옵니다.
+        //     alert("통신 실패.");
+        //   },
+        // });
       }
     </script>
   </body>
