@@ -233,6 +233,7 @@
         margin-bottom: 10px;
         margin-bottom: 10px;
         max-width: calc(100% / 1.55);
+        position: relative;
       }
       #messages li > .photo {
         width: 42px;
@@ -261,18 +262,18 @@
         margin: 17px;
       }
       /* #messages li:after {
-        content: "";
-        display: block;
-        height: 1em;
-        width: 1em;
-        position: absolute;
-        bottom: 0.75em;
-        right: -1em;
-        -webkit-clip-path: polygon(0 0, 0% 100%, 75% 100%);
-        clip-path: polygon(0 0, 0% 100%, 75% 100%);
-        background: #0072ff;
-        transform: skewY(15deg);
-      } */
+          content: "";
+          display: block;
+          height: 1em;
+          width: 1em;
+          position: absolute;
+          bottom: 0.75em;
+          right: -1em;
+          -webkit-clip-path: polygon(0 0, 0% 100%, 75% 100%);
+          clip-path: polygon(0 0, 0% 100%, 75% 100%);
+          background: #0072ff;
+          transform: skewY(15deg);
+        } */
       li.flex-right > .msg {
         background: var(--right-msg-bg) !important;
         color: #fff;
@@ -325,10 +326,69 @@
       #allMsg:checked + label {
         color: #0072ff;
       }
+      .dot {
+        position: absolute;
+        background: red;
+        width: 4px;
+        height: 4px;
+        border-radius: 100%;
+        top: 5px;
+        left: -10px;
+        display: none;
+      }
+      .flex-right .dot {
+        display: block;
+      }
+      .msg {
+        position: relative;
+      }
+      .chatOpen {
+        position: fixed;
+        bottom: 42px;
+        z-index: 2;
+        font-size: 12px;
+        color: #888;
+        margin-left: 19px;
+      }
+      .newMsgPush {
+        position: fixed;
+        top: -50%;
+        width: 90%;
+        padding: 15px;
+        left: 50%;
+        transform: translate(-50%, 0);
+        background: rgba(255, 255, 255, 0.8);
+        z-index: 10;
+        border-radius: 4px;
+        transition: top 0.6s ease-out;
+      }
+      .animateTop {
+        top: 10px;
+      }
+      .backGroupNew::after {
+        position: absolute;
+        background: red;
+        width: 4px;
+        height: 4px;
+        border-radius: 100%;
+        margin-top: 10px;
+        content: "";
+      }
+      .msgTimeNow {
+        font-size: 10px;
+        color: #888;
+        text-align: left;
+        display: block;
+      }
+      .myMsgTime {
+        text-align: right;
+        color: #ddd;
+      }
     </style>
   </head>
   <body>
     <div class="warp">
+      <div class="newMsgPush" id="newMsgPush"></div>
       <div class="chatList">
         <div id="chatList"></div>
       </div>
@@ -363,6 +423,7 @@
         <span id="newMsg"></span>
       </div>
       <form action="">
+        <div class="chatOpen" id="chatOpen"></div>
         <div class="flex sendMsg">
           <div class="allMsg teacher">
             <input type="checkbox" id="allMsg" /><label for="allMsg"
@@ -373,6 +434,7 @@
             type="text"
             id="m"
             autocomplete="off"
+            required
             placeholder="메세지를 입력하세요"
           />
           <button class="flex-right" style="flex-shrink: 1">
@@ -403,7 +465,9 @@
       const teacherIdx = localStorage.getItem("smt_idx");
       const studentIdx = localStorage.getItem("sms_idx");
       const chatMode = localStorage.getItem("mode");
-      var api = "http://school-os.net:3095/";
+      sessionStorage.setItem("jellyRoom", "T" + teacherIdx + "S" + studentIdx);
+      var api = "http://localhost:3095/";
+      // var api = "http://192.168.83.143:3095/";
       // var api = "http://school-os.net:3095/";
       $(() => {
         $("body")
@@ -434,9 +498,15 @@
           socket.emit("joinRoom", num, name);
         });
 
+        const jellyRoom = sessionStorage.getItem("jellyRoom");
         $("form").submit(() => {
-          const jellyRoom = sessionStorage.getItem("jellyRoom");
           console.log(jellyRoom);
+          const blank_pattern = /^\s+|\s+$/g;
+
+          if ($("#m").val().replaceAll(blank_pattern, "") == "") {
+            console.log("null");
+            return false;
+          }
 
           if ($("#allMsg").prop("checked") === false) {
             socket.emit(
@@ -448,6 +518,8 @@
               studentIdx,
               chatMode
             );
+            // 학생이 메세지 보낼때 푸시알림
+            socket.emit("studentPushMsg", jellyRoom, $("#m").val());
           } else {
             console.log("전체메세지");
             socket.emit(
@@ -478,9 +550,19 @@
             student_name,
             reg_photo,
             teacher_name,
-            teacher_photo
+            teacher_photo,
+            chat_idx,
+            read,
+            num
           ) => {
             console.log(q_insert);
+            if (chatMode === "S") {
+              charRead(chat_idx);
+              console.log("readYN", num, chat_idx);
+              socket.emit("readYN", num, chat_idx);
+            }
+
+            console.log(read);
             const windowScroll = window.scrollY;
             const windowInner = window.innerHeight;
             const bodyOffset = document.body.offsetHeight;
@@ -488,10 +570,17 @@
             let photo_left;
             let photo_right;
             let myClass = "";
+            let readMsgNot;
+            if (read === "Y") {
+              readMsgNot = "";
+            } else {
+              readMsgNot = `<div class="dot" id="dot${chat_idx}"></div>`;
+            }
 
             if (mode === chatMode) {
               myClassData = "flex-right";
             }
+
             chatMode === "T"
               ? (chatName = student_name)
               : (chatName = teacher_name);
@@ -518,6 +607,8 @@
             ${photo_left}
             <div class='msg'>${msg}</div>
             ${photo_right}
+            ${readMsgNot}
+            <div>3분전</div>
             </li>`;
 
             $("#messages").append(tagHtml);
@@ -555,11 +646,32 @@
           );
         });
 
-        socket.on("joinRoom", (num, name) => {
+        socket.on("joinRoom", (num, idx) => {
           $("#messages").append(
             $("<li>").text(name + "    joined " + num + ":)")
           );
         });
+        // 메세지 읽음처리
+        socket.on("readYN_CHK", (num, idx) => {
+          console.log("[읽음처리]", num, idx);
+          $("#dot" + idx).hide();
+        });
+        // 메세지 전체 읽음처리
+        socket.on("readAllInit", () => {
+          console.log("[전체읽음처리]");
+          $(".dot").hide();
+        });
+
+        if (chatMode === "T") {
+          // 메세지 푸시
+          socket.on("studentPushMsg", (num, msg) => {
+            if (num != jellyRoom) {
+              console.log("[메세지 도착]", num);
+              $("#newMsgPush").text(msg);
+              pushAnimate();
+            }
+          });
+        }
       });
 
       // chat init teacher
@@ -573,6 +685,7 @@
               resJson = JSON.parse(res);
               console.log(resJson);
               let initList = "";
+              let openTime = "";
               resJson.forEach((v) => {
                 initList += `
                   <div class="flex" onclick="onClickJoinRoom(${v.smt_idx},${
@@ -602,14 +715,16 @@
           },
           error: function (XMLHttpRequest, textStatus, errorThrown) {
             // 비동기 통신이 실패할경우 error 콜백으로 들어옵니다.
-            alert("통신 실패.");
+            alert("chatList 통신 실패.");
           },
         });
         if (e === "back") {
           $(".chatList").removeClass("slideAnimation");
+          sessionStorage.removeItem("jellyRoom");
+          $(".backGroup").toggleClass("backGroupNew");
         }
       }
-      console.log("chatTimes", chatTimes());
+      // console.log("chatTimes", chatTimes());
       // join room
       function onClickJoinRoom(smt, sms) {
         $("#messages").html("");
@@ -621,19 +736,30 @@
         sessionStorage.removeItem("jellyRoom");
         sessionStorage.setItem("jellyRoom", roomName);
         socket.emit("joinRoom", roomName, name, smt, sms);
+        if (chatMode === "S") {
+          chatReadAll(roomName);
+          console.log("***********전체읽기*************");
+          socket.emit("readAllInit", roomName);
+        }
         $.ajax({
           type: "GET", // HTTP method type(GET, POST) 형식이다.
           url: api + "chat.php?type=chatInit&room_id=" + roomName, // 컨트롤러에서 대기중인 URL 주소이다.
           // data: params, // Json 형식의 데이터이다.
           success: function (res) {
-            console.log(res);
             if (res) {
               resJson = JSON.parse(res);
+              console.log(resJson);
               let msgInitData = "";
               let myClass = "";
               let photo_left;
               let photo_right;
+              let openTime;
+              let readMsgNot;
+              let nowMsgTime;
               resJson.forEach((v, i) => {
+                if (i === 0) {
+                  openTime = `채팅 가능시간 ${v.start_time} ~ ${v.end_time}`;
+                }
                 chatMode === "T"
                   ? (chatName = v.student_name)
                   : (chatName = v.teacher_name);
@@ -648,24 +774,41 @@
                 }
                 if (myClass === "") {
                   photo_left = `<div class="photo" style="margin-right:8px;">
-              <img src="${photo_img}">
-              </div>`;
+                      <img src="${photo_img}">
+                      </div>`;
                   photo_right = "";
+                  nowMsgTime = `<p class="msgTimeNow">${timeForToday(
+                    v.chat_datetime
+                  )}</p>`;
                 } else {
                   //     photo_right = `<div class="photo" style="margin-left:8px;">
                   // <img src="${photo_img}">
                   // </div>`;
                   photo_right = "";
                   photo_left = "";
+                  nowMsgTime = `<p class="msgTimeNow myMsgTime">${timeForToday(
+                    v.chat_datetime
+                  )}</p>`;
+                }
+                if (v.read === "Y") {
+                  readMsgNot = "";
+                } else {
+                  readMsgNot = `<div class="dot" id="dot${v.chat_idx}"></div>`;
                 }
                 const tagHtml = `<li class='${myClass}'>
-            ${photo_left}
-            <div class='msg'>${v.msg}</div>
-            ${photo_right}
+                  ${photo_left}
+                  <div class='msg'>${v.msg}
+                    ${readMsgNot}
+                     ${nowMsgTime}
+                    </div>
+                  ${photo_right}
+           
             </li>`;
                 msgInitData += tagHtml;
               });
               $("#messages").html(msgInitData);
+              $("#chatOpen").html(openTime);
+              console.log("openTime", openTime);
             }
             $("#chatRegName").text(chatName);
 
@@ -678,7 +821,7 @@
           },
           error: function (XMLHttpRequest, textStatus, errorThrown) {
             // 비동기 통신이 실패할경우 error 콜백으로 들어옵니다.
-            alert("통신 실패.");
+            alert("chatInit 통신 실패.");
           },
         });
       }
@@ -743,6 +886,41 @@
         //     alert("통신 실패.");
         //   },
         // });
+      }
+      function chatReadAll(roomId) {
+        $.ajax({
+          type: "GET", // HTTP method type(GET, POST) 형식이다.
+          url: api + "chat.php?type=chatAllRead&room_id=" + roomId,
+          // data: params, // Json 형식의 데이터이다.
+          success: function (res) {
+            console.log("[chatReadAll]", res);
+          },
+          error: function (XMLHttpRequest, textStatus, errorThrown) {
+            // 비동기 통신이 실패할경우 error 콜백으로 들어옵니다.
+            alert("chatReadAll 통신 실패.");
+          },
+        });
+      }
+      function charRead(idx) {
+        $.ajax({
+          type: "GET", // HTTP method type(GET, POST) 형식이다.
+          url: api + "chat.php?type=chatRead&idx=" + idx,
+          // data: params, // Json 형식의 데이터이다.
+          success: function (res) {
+            console.log("[chatReadAll]", res);
+          },
+          error: function (XMLHttpRequest, textStatus, errorThrown) {
+            // 비동기 통신이 실패할경우 error 콜백으로 들어옵니다.
+            alert("charRead 통신 실패.");
+          },
+        });
+      }
+      function pushAnimate() {
+        $("#newMsgPush").toggleClass("animateTop");
+        $(".backGroup").toggleClass("backGroupNew");
+        setTimeout(() => {
+          $("#newMsgPush").toggleClass("animateTop");
+        }, 2000);
       }
     </script>
   </body>

@@ -37,6 +37,20 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("readYN", (num, idx) => {
+    io.to(num).emit("readYN_CHK", num, idx);
+    console.log("++++++++++날아옴+++++++++++++");
+  });
+  socket.on("readAllInit", (num) => {
+    console.log("***********전체읽기*************");
+    io.to(num).emit("readAllInit");
+  });
+
+  // 학생이 메세지 보낼때 푸시알림
+  socket.on("studentPushMsg", (num, msg) => {
+    console.log("***********푸시알림*************");
+    io.emit("studentPushMsg", num, msg);
+  });
   socket.on("joinRoom", (num, name, smt, sms) => {
     sms_idx = num.split("S")[1];
     const q = `SELECT room_id from sos_chat_room where room_id = '${num}'`;
@@ -56,14 +70,16 @@ io.on("connection", (socket) => {
   });
 
   socket.on("chat message", (num, name, msg, t_idx, s_idx, mode) => {
+    console.log("----------", msg);
     const q_insert = `insert into sos_chat_msg (scr_idx, smt_idx, sms_idx, msg, msg_mode, datetime) select idx,'${t_idx}', '${
       num.split("S")[1]
     }', '${msg}', '${mode}',  now() from sos_chat_room where room_id = '${num}'`;
     connection.query(q_insert, (error, rows, fields) => {
       if (error) throw error;
-      console.log(rows, fields);
+      console.log("++++++++++", rows.insertId);
+      // console.log("=============", fields.insertId);
     });
-    const q = `select *,
+    const q = `select *, scm.idx as chat_idx,
     (select reg_name from sos_member_student where idx = scr.sms_idx limit 1) as student_name,
     (select reg_name from sos_member_teacher where idx = scr.smt_idx limit 1) as teacher_name,
     (select reg_photo from sos_member_student where idx = scr.sms_idx limit 1) as reg_photo,
@@ -85,7 +101,10 @@ io.on("connection", (socket) => {
         rows[0].student_name,
         rows[0].reg_photo,
         rows[0].teacher_name,
-        rows[0].teacher_photo
+        rows[0].teacher_photo,
+        rows[0].chat_idx,
+        rows[0].read,
+        num
       );
     });
   });
