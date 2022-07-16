@@ -388,7 +388,7 @@
   </head>
   <body>
     <div class="warp">
-      <div class="newMsgPush" id="newMsgPush"></div>
+      <div class="newMsgPush" id="newMsgPush">여기에 이름 넣어줘</div>
       <div class="chatList">
         <div id="chatList"></div>
       </div>
@@ -466,7 +466,7 @@
       const studentIdx = localStorage.getItem("sms_idx");
       const chatMode = localStorage.getItem("mode");
       sessionStorage.setItem("jellyRoom", "T" + teacherIdx + "S" + studentIdx);
-      var api = "http://localhost:3095/";
+      var api = "http://192.168.219.110:3095/";
       // var api = "http://192.168.83.143:3095/";
       // var api = "http://school-os.net:3095/";
       $(() => {
